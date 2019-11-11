@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc
+        https://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/context
+        https://www.springframework.org/schema/context/spring-context.xsd">
+    <context:component-scan base-package="top.xuxuzhaozhao"/>
+    
+    <bean id="internalResourceViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/pages/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!-- 配置自定义转换类型 -->
+    <bean id="conversionServiceFactoryBean" class="org.springframework.context.support.ConversionServiceFactoryBean">
+        <property name="converters">
+            <set>
+                <bean class="top.xuxuzhaozhao.utils.StringToDate"/>
+            </set>
+        </property>
+    </bean>
+
+    <!-- 配置文件解析器，id不能改 -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- 10MB -->
+        <property name="maxUploadSize" value="10485760"/>
+    </bean>
+
+    <!-- 配置异常处理器 -->
+    <bean id="sysException" class="top.xuxuzhaozhao.exception.SysExceptionResolver"/>
+
+    <!-- 配置拦截器 -->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <!-- 要拦截的方法 -->
+            <mvc:mapping path="/**"/>
+            <!-- 不要拦截的方法 -->
+            <!-- <mvc:exclude-mapping path=""/> -->
+
+            <bean id="myInterceptor" class="top.xuxuzhaozhao.interceptor.MyInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <!-- 哪些静态资源不能拦截 -->
+   <mvc:resources mapping="/js/**" location="/js/"/>
+
+    <!-- 并配置生效 -->
+    <mvc:annotation-driven conversion-service="conversionServiceFactoryBean"/>
+</beans>
